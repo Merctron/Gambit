@@ -1,7 +1,15 @@
+//Game code
+//Start game. Populate meta game board with numbers. Add score as player traverses the board.
+//Numbers must be Negative and Positive.
+//Get off the board with the number of moves remaining and maximum score.
+//At every step show maximum possible score (Will require max_score algorithm)
+//Have option to expose board that show path with maximum score.
+
 $(document).ready(function () {
 
 	/*Need to decide color codes for tiles*/
 
+	var meta_gameboard = [];
 	var gameboard = document.getElementById("gameboard");
 	gameboard.width = $(window).width();
 	//gameboard.style.width = $(window).width();
@@ -75,6 +83,14 @@ $(document).ready(function () {
 
 	function updateScore() {
 		$("#score").text("Score: " + score);
+	}
+
+	function populateGameBoard() {
+
+	}
+
+	function reset() {
+
 	}
 });
 
