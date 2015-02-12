@@ -37,16 +37,42 @@
 			text-align: center;
 		}
 
+		#gtitle:hover {
+			color: #3366CC;
+			font-weight: bold;
+		}
+
+		.dp {
+			font-size: 25px;
+		}
+
+		button:hover {
+			color: #3366CC;
+		}
+
+
 	</style>
 
 	<body>
 		<div id="info">
+			
 			<p></p>
-			<h2>Gambit</h2>
 
-			<h2 id="score">Score: 0</h2>
-			<p><button>Play</button></p>
-			<p><button>Help</button></p>
+			<h2 id="gtitle">GAMBIT</h2>
+
+			<br></br>
+			<br></br>
+
+			<h2 id="score" class="dp">Score: 0</h2>
+			<h2 id="movesleft" class="dp">Moves Left: 0</h2>
+
+			<br></br>
+
+			<p><button id="playbutton" href="javascript">Play</button></p>
+			<p><button id="expbutton">Expose Board</button></p>
+			<p><button id="helpbutton">Help / About</button></p>
+
+
 		</div>
 		<canvas id="gameboard"></canvas>
 		
