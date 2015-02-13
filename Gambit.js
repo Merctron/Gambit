@@ -48,6 +48,8 @@ $(document).ready(function () {
 		populateGameBoard();
 		console.log(meta_gameboard);
 		setInterval(function() {
+			//gameboard.width = $(window).width() - $("#info").width();
+			//gameboard.height = $(window).height();
 			var col_side = Math.floor(($(window).width() - $("#info").width())/31);
 			var row_side = Math.floor($(window).height()/17);
 			if (gamestarted) {
@@ -178,21 +180,57 @@ function drawBoard(context, rows, columns, rside, cside) {
 
 function displayGambit(i, j, context, rside, cside, mgb) {
 
-	if (mgb[i-1][j] <= 20 && mgb[i-1][j] >= 0) {
+	if (i <= 0) {
+
+	}
+	else if (mgb[i-1][j] <= 25 && mgb[i-1][j] >= -5) {
 		colorTile(context, i-1, j, "#7FFF00", rside, cside);
+	}
+	else if (mgb[i-1][j] <= -50 || mgb[i-1][j] >= 65) {
+		colorTile(context, i-1, j, "#FF3300", rside, cside);
 	}
 	else {
 		colorTile(context, i-1, j, "#FFA500", rside, cside);
 	}
 
-	//colorTile(context, i-1, j, "#7FFF00", side);
-	//colorTile(context, i, j-1, "#7FFF00", side);
-	//colorTile(context, i+1, j, "#7FFF00", side);
-	//colorTile(context, i, j+1, "#7FFF00", side);
-	//colorTile(context, i-1, j+1, "#FFA500", side);
-	//colorTile(context, i-1, j-1, "#FFA500", side);
-	//colorTile(context, i+1, j+1, "#FFA500", side);
-	//colorTile(context, i+1, j-1, "#FFA500", side);
+	if (j <= 0) {
+
+	}
+	else if (mgb[i][j-1] <= 25 && mgb[i][j-1] >= -5) {
+		colorTile(context, i, j-1, "#7FFF00", rside, cside);
+	}
+	else if (mgb[i][j-1] <= -50 || mgb[i][j-1] >= 65) {
+		colorTile(context, i, j-1, "#FF3300", rside, cside);
+	}
+	else {
+		colorTile(context, i, j-1, "#FFA500", rside, cside);
+	}
+
+	if (i >= 16) {
+
+	}
+	else if (mgb[i+1][j] <= 25 && mgb[i+1][j] >= -5) {
+		colorTile(context, i+1, j, "#7FFF00", rside, cside);
+	}
+	else if (mgb[i+1][j] <= -50 || mgb[i+1][j] >= 65) {
+		colorTile(context, i+1, j, "#FF3300", rside, cside);
+	}
+	else {
+		colorTile(context, i+1, j, "#FFA500", rside, cside);
+	}
+
+	if (j >= 30) {
+
+	}
+	else if (mgb[i][j+1] <= 25 && mgb[i][j+1] >= -5) {
+		colorTile(context, i, j+1, "#7FFF00", rside, cside);
+	}
+	else if (mgb[i][j+1] <= -50 || mgb[i][j+1] >= 65) {
+		colorTile(context, i, j+1, "#FF3300", rside, cside);
+	}
+	else {
+		colorTile(context, i, j+1, "#FFA500", rside, cside);
+	}
 }
 
 function colorTile(context, row, column, color, rside, cside) {
