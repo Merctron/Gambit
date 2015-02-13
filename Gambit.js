@@ -11,12 +11,11 @@ $(document).ready(function () {
 	var FPS = 30;
 	var meta_gameboard = [];
 	var gameboard = document.getElementById("gameboard");
-	gameboard.width = $(window).width();
-	//gameboard.style.width = $(window).width();
+	gameboard.width = $(window).width() - $("#info").width();
 	gameboard.height = $(window).height();
-	//gameboard.style.height = $(window).height();
 	var canvas = gameboard.getContext("2d");
-	var side = $(window).width()/30;
+	var col_side = ($(window).width() - $("#info").width())/30;
+	var row_side = $(window).height()/16;
 	var row_limit = 16;
 	var col_limit = 30;
 	var row = 7;
@@ -28,10 +27,10 @@ $(document).ready(function () {
 	canvas.font = "italic 100px Helvetica";
 	canvas.fillStyle = "White";
 
-	canvas.fillText("Dare il", col*side - 137, row*side - 50);	
-	colorTile(canvas, row, col, "#3366CC", side);
+	canvas.fillText("Dare il", col*col_side - 137, row*row_side - 50);	
+	colorTile(canvas, row, col, "#3366CC", row_side, col_side);
 	canvas.fillStyle = "White";
-	canvas.fillText("Gambetto", col*side - 207, row*side + 150);
+	canvas.fillText("Gambetto", col*col_side - 207, row*row_side + 150);
 
 	$("#playbutton").click(function() {
 		startGame();
@@ -49,19 +48,21 @@ $(document).ready(function () {
 		populateGameBoard();
 		console.log(meta_gameboard);
 		setInterval(function() {
+			var col_side = ($(window).width() - $("#info").width())/30;
+			var row_side = $(window).height()/16;
 			if (gamestarted) {
 				update();
   				draw();
   				if (moves <= 0) {
 					gamestarted = false;
 					canvas.fillStyle = "black";
-					canvas.fillRect(0, 0, side*30, side*16);
+					canvas.fillRect(0, 0, col_side*30, row_side*16);
 					canvas.fillStyle = "White";
 
-					canvas.fillText("Game", 15*side - 137, 7*side - 50);	
-					colorTile(canvas, 7, 15, "#3366CC", side);
+					canvas.fillText("Game", 15*col_side - 127, 7*row_side - 50);	
+					colorTile(canvas, 7, 15, "#3366CC", row_side, col_side);
 					canvas.fillStyle = "White";
-					canvas.fillText("Over", 15*side - 105, 7*side + 150);
+					canvas.fillText("Over", 15*col_side - 95, 7*row_side + 150);
 				}
 			}
 		}, 1000/FPS);
@@ -77,26 +78,29 @@ $(document).ready(function () {
 
 	$(document).keydown(function(key) {
 		if (gamestarted) {
-			moves--;
 			switch (parseInt(key.which,10)) {
 			case 37: //left
 				if (col > 0) {
 					score += meta_gameboard[row][--col];
+					moves--;
 				}
 				break;
 			case 38: //up
 				if (row > 0) {
 					score += meta_gameboard[--row][col];
+					moves--;
 				}
 				break;
 			case 39: //right
 				if (col < col_limit - 1) {
 					score += meta_gameboard[row][++col];
+					moves--;
 				}
 				break;
 			case 40: //down
 				if (row < row_limit- 1) {
 					score += meta_gameboard[++row][col];
+					moves--;
 				}
 				break;
 			}
@@ -109,11 +113,11 @@ $(document).ready(function () {
 		requestAnimationFrame(changePhase);
 		if (fl == 1) {
 			fl = 0;
-			colorTile(canvas, 10, 7, "#3366CC", side);
+			colorTile(canvas, 10, 7, "#3366CC", col_side);
 		}
 		else {
 			fl = 1;
-			colorTile(canvas, 10, 7, "#FF0000", side);
+			colorTile(canvas, 10, 7, "#FF0000", col_side);
 		}
 	}
 
@@ -122,9 +126,9 @@ $(document).ready(function () {
 	}
 
 	function draw() {
-		var side = $(window).width()/30;
-		drawBoard(canvas, row_limit, col_limit, side);
-		colorTile(canvas, row, col, "#3366CC", side);
+		//var side = $(window).width()/30;
+		drawBoard(canvas, row_limit, col_limit, row_side, col_side);
+		colorTile(canvas, row, col, "#3366CC", row_side, col_side);
 		//displayGambit(row, col, canvas, side);
 	}
 
@@ -149,7 +153,7 @@ $(document).ready(function () {
 	}
 });
 
-function drawBoard(context, rows, columns, side) {
+function drawBoard(context, rows, columns, rside, cside) {
 	var counter = 0;
 	for (i = 0; i < rows; i++) {
 		if (counter == 0) {
@@ -161,7 +165,7 @@ function drawBoard(context, rows, columns, side) {
 		 	counter = 0;
 		}
 		for (j = 0; j < columns; j++) {
-		 	context.fillRect(j*side, i*side, side, side);		
+		 	context.fillRect(j*cside, i*rside, cside, rside);		
 		 	if (counter == 0) {
 		 		context.fillStyle = "#404040";	
 		 		counter = 1;
@@ -185,9 +189,9 @@ function displayGambit(i, j, context, side) {
 	colorTile(context, i+1, j-1, "#FFA500", side);
 }
 
-function colorTile(context, row, column, color, side) {
+function colorTile(context, row, column, color, rside, cside) {
 	context.fillStyle = color;
-	context.fillRect(column*side, row*side, side, side);
+	context.fillRect(column*cside, row*rside, cside, rside);
 }
 
 function colorTileRepeat(context, row, column, color, color2, side, phase) {
