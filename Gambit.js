@@ -10,6 +10,7 @@ $(document).ready(function () {
 	/*Need to decide color codes for tiles*/
 	var FPS = 30;
 	var meta_gameboard = [];
+	var move_tracker = [];
 	var gameboard = document.getElementById("gameboard");
 	gameboard.width = $(window).width() - $("#info").width();
 	gameboard.height = $(window).height();
@@ -47,6 +48,7 @@ $(document).ready(function () {
 		gamestarted = true;
 		populateGameBoard();
 		console.log(meta_gameboard);
+		console.log(move_tracker);
 		setInterval(function() {
 			//gameboard.width = $(window).width() - $("#info").width();
 			//gameboard.height = $(window).height();
@@ -54,7 +56,10 @@ $(document).ready(function () {
 			var row_side = Math.floor($(window).height()/17);
 			if (gamestarted) {
 				update();
+				record_move();
+
   				draw();
+  				display_occupied_spots();
   				if (moves <= 0) {
 					gamestarted = false;
 					canvas.fillStyle = "black";
@@ -83,26 +88,34 @@ $(document).ready(function () {
 			switch (parseInt(key.which,10)) {
 			case 37: //left
 				if (col > 0) {
-					score += meta_gameboard[row][--col];
-					moves--;
+					if (!move_tracker[row][col-1]) {
+						score += meta_gameboard[row][--col];
+						moves--;
+					}
 				}
 				break;
 			case 38: //up
 				if (row > 0) {
-					score += meta_gameboard[--row][col];
-					moves--;
+					if (!move_tracker[row-1][col]) {
+						score += meta_gameboard[--row][col];
+						moves--;
+					}
 				}
 				break;
 			case 39: //right
 				if (col < col_limit - 1) {
-					score += meta_gameboard[row][++col];
-					moves--;
+					if (!move_tracker[row][col+1]) {
+						score += meta_gameboard[row][++col];
+						moves--;
+					}
 				}
 				break;
 			case 40: //down
 				if (row < row_limit- 1) {
-					score += meta_gameboard[++row][col];
-					moves--;
+					if (!move_tracker[row+1][col]) {
+						score += meta_gameboard[++row][col];
+						moves--;
+					}
 				}
 				break;
 			}
@@ -143,9 +156,25 @@ $(document).ready(function () {
 
 	function populateGameBoard() {
 		for (i = 0; i < row_limit; i++) {
-			meta_gameboard[i] = new Array(30);
+			meta_gameboard[i] = new Array(31);
+			move_tracker[i] = new Array(31);
 			for (j = 0; j < col_limit; j++) {
 				meta_gameboard[i][j] = getRandomNumber(-100, 100);
+				move_tracker[i][j] = false;
+			}
+		}
+	}
+
+	function record_move() {
+		move_tracker[row][col] = true;
+	}
+
+	function display_occupied_spots() {
+		for (i = 0; i < row_limit; i++) {
+			for (j = 0; j < col_limit; j++) {
+				if (move_tracker[i][j] == true) {
+					colorTile(canvas, i, j, "#3366CC", row_side, col_side);
+				}
 			}
 		}
 	}
