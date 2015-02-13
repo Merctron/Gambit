@@ -36,6 +36,14 @@ $(document).ready(function () {
 	$("#playbutton").click(function() {
 		startGame();
 	});
+
+	$("#expbutton").click(function() {
+		
+	});
+
+	$("#helpbutton").click(function() {
+		
+	});
 	
 
 
@@ -177,6 +185,10 @@ $(document).ready(function () {
 				}
 			}
 		}
+	}
+
+	function max_score() {
+		
 	}
 
 });
