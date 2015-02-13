@@ -67,7 +67,6 @@ $(document).ready(function () {
 			var row_side = Math.floor($(window).height()/17);
 			if (gamestarted) {
 				update();
-				record_move();
 
   				draw();
   				display_occupied_spots();
@@ -101,6 +100,7 @@ $(document).ready(function () {
 				if (col > 0) {
 					if (!move_tracker[row][col-1]) {
 						score += meta_gameboard[row][--col];
+						record_move();
 						moves--;
 					}
 				}
@@ -109,6 +109,7 @@ $(document).ready(function () {
 				if (row > 0) {
 					if (!move_tracker[row-1][col]) {
 						score += meta_gameboard[--row][col];
+						record_move();
 						moves--;
 					}
 				}
@@ -117,6 +118,7 @@ $(document).ready(function () {
 				if (col < col_limit - 1) {
 					if (!move_tracker[row][col+1]) {
 						score += meta_gameboard[row][++col];
+						record_move();
 						moves--;
 					}
 				}
@@ -125,6 +127,7 @@ $(document).ready(function () {
 				if (row < row_limit- 1) {
 					if (!move_tracker[row+1][col]) {
 						score += meta_gameboard[++row][col];
+						record_move();
 						moves--;
 					}
 				}
@@ -176,6 +179,7 @@ $(document).ready(function () {
 				move_tracker[i][j] = false;
 			}
 		}
+		move_tracker[row][col] = true;
 	}
 
 	function record_move() {
@@ -193,46 +197,50 @@ $(document).ready(function () {
 	}
 
 	function max_score() {
-		var s1 = score;
-		var s2 = score;
-		var s3 = score;
-		var s4 = score;	
-
 		win_move_comb = new Array();
+		if (!gamestarted || moves <= 0) {
+			win_move_comb.push("GAME_TERMINATED");
+			return 0;
+		}
+
+		var s1 = 0;
+		var s2 = 0;
+		var s3 = 0;
+		var s4 = 0;	
 
 		if (row > 0) {
 			if (!move_tracker[row-1][col])
-				s1 += rec_max_score(moves - 1, row-1, col);
+				s1 += rec_max_score(moves, row-1, col);
 		}
 		if (row < 16) {
 			if (!move_tracker[row+1][col])
-				s2 += rec_max_score(moves - 1, row+1, col);
+				s2 += rec_max_score(moves, row+1, col);
 		}
 		if (col > 0) {
 			if (!move_tracker[row][col-1])
-				s3 += rec_max_score(moves - 1, row, col-1);
+				s3 += rec_max_score(moves, row, col-1);
 		}
 		if (col < 30) {
 			if (!move_tracker[row][col+1])
-				s4 += rec_max_score(moves - 1, row, col+1);
+				s4 += rec_max_score(moves, row, col+1);
 		}
 
 
-		if (s1 >= s2 && s1 >= s3 && s1 >= s4) {
+		if (s1 >= s2 && s1 >= s3 && s1 >= s4 && !move_tracker[row-1][col]) {
 			win_move_comb.push("UP");
-			return s1;
+			return s1 + score;
 		}
-		else if (s2 >= s1 && s2 >= s3 && s2 >= s4) {
+		else if (s2 >= s1 && s2 >= s3 && s2 >= s4 && !move_tracker[row+1][col]) {
 			win_move_comb.push("DOWN");
-			return s2;
+			return s2 + score;
 		}
-		else if (s3 >= s1 && s3 >= s2 && s3 >= s4) {
+		else if (s3 >= s1 && s3 >= s2 && s3 >= s4 && !move_tracker[row][col-1]) {
 			win_move_comb.push("LEFT");
-			return s3;
+			return s3 + score;
 		}
-		else if (s4 >= s1 && s4 >= s2 && s4 >= s3) {
+		else if (s4 >= s1 && s4 >= s2 && s4 >= s3 && !move_tracker[row][col+1]) {
 			win_move_comb.push("RIGHT");
-			return s4;
+			return s4 + score;
 		}
 
 		return 0;
@@ -270,16 +278,16 @@ $(document).ready(function () {
 			}
 
 
-			if (s1 >= s2 && s1 >= s3 && s1 >= s4) {
+			if (s1 >= s2 && s1 >= s3 && s1 >= s4 && !move_tracker[row-1][col]) {
 				return s1;
 			}
-			else if (s2 >= s1 && s2 >= s3 && s2 >= s4) {
+			else if (s2 >= s1 && s2 >= s3 && s2 >= s4 && !move_tracker[row+1][col]) {
 				return s2;
 			}
-			else if (s3 >= s1 && s3 >= s2 && s3 >= s4) {
+			else if (s3 >= s1 && s3 >= s2 && s3 >= s4 && !move_tracker[row][col-1]) {
 				return s3;
 			}
-			else if (s4 >= s1 && s4 >= s2 && s4 >= s3) {
+			else if (s4 >= s1 && s4 >= s2 && s4 >= s3 && !move_tracker[row][col+1]) {
 				return s4;
 			}
 
