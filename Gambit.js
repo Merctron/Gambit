@@ -3,7 +3,7 @@
 //Numbers must be Negative and Positive.
 //Get off the board with the number of moves remaining and maximum score.
 //At every step show maximum possible score (Will require max_score algorithm)
-//Have option to expose board that show path with maximum score.
+//Have option to expose board that shows path with maximum score.
 
 $(document).ready(function () {
 
@@ -14,11 +14,11 @@ $(document).ready(function () {
 	gameboard.width = $(window).width() - $("#info").width();
 	gameboard.height = $(window).height();
 	var canvas = gameboard.getContext("2d");
-	var col_side = ($(window).width() - $("#info").width())/30;
-	var row_side = $(window).height()/16;
-	var row_limit = 16;
-	var col_limit = 30;
-	var row = 7;
+	var col_side = Math.floor(($(window).width() - $("#info").width())/31);
+	var row_side = Math.floor($(window).height()/17);
+	var row_limit = 17;
+	var col_limit = 31;
+	var row = 8; //Since counts start from 0, limit(median) - 1 
 	var col = 15;
 	var gamestarted = false;
 	var score = 0;
@@ -41,28 +41,28 @@ $(document).ready(function () {
 	function startGame() {
 		score = 0;
 		moves = 50;
-		row = 7;
+		row = 8;
 		col = 15;
 		canvas.fillStyle = "#FF0000";
 		gamestarted = true;
 		populateGameBoard();
 		console.log(meta_gameboard);
 		setInterval(function() {
-			var col_side = ($(window).width() - $("#info").width())/30;
-			var row_side = $(window).height()/16;
+			var col_side = Math.floor(($(window).width() - $("#info").width())/31);
+			var row_side = Math.floor($(window).height()/17);
 			if (gamestarted) {
 				update();
   				draw();
   				if (moves <= 0) {
 					gamestarted = false;
 					canvas.fillStyle = "black";
-					canvas.fillRect(0, 0, col_side*30, row_side*16);
+					canvas.fillRect(0, 0, col_side*31, row_side*17);
 					canvas.fillStyle = "White";
 
-					canvas.fillText("Game", 15*col_side - 127, 7*row_side - 50);	
-					colorTile(canvas, 7, 15, "#3366CC", row_side, col_side);
+					canvas.fillText("Game", 15*col_side - 127, 8*row_side - 50);	
+					colorTile(canvas, 8, 15, "#3366CC", row_side, col_side);
 					canvas.fillStyle = "White";
-					canvas.fillText("Over", 15*col_side - 95, 7*row_side + 150);
+					canvas.fillText("Over", 15*col_side - 95, 8*row_side + 150);
 				}
 			}
 		}, 1000/FPS);
@@ -129,7 +129,7 @@ $(document).ready(function () {
 		//var side = $(window).width()/30;
 		drawBoard(canvas, row_limit, col_limit, row_side, col_side);
 		colorTile(canvas, row, col, "#3366CC", row_side, col_side);
-		//displayGambit(row, col, canvas, side);
+		displayGambit(row, col, canvas, row_side, col_side, meta_gameboard);
 	}
 
 	function updateScore() {
@@ -148,22 +148,20 @@ $(document).ready(function () {
 		}
 	}
 
-	function reset() {
-
-	}
 });
 
 function drawBoard(context, rows, columns, rside, cside) {
 	var counter = 0;
+	context.fillStyle = "#FFFFDA";
 	for (i = 0; i < rows; i++) {
-		if (counter == 0) {
-		 	context.fillStyle = "#404040";	
-		 	counter = 1;
-		}
-		else {
-		 	context.fillStyle = "#CC3333";
-		 	counter = 0;
-		}
+		// if (counter == 0) {   //block important for grid creation if limits are even
+		//  	context.fillStyle = "#404040";	
+		//  	counter = 1;
+		// }
+		// else {
+		//  	context.fillStyle = "#CC3333";
+		//  	counter = 0;
+		// }
 		for (j = 0; j < columns; j++) {
 		 	context.fillRect(j*cside, i*rside, cside, rside);		
 		 	if (counter == 0) {
@@ -171,22 +169,30 @@ function drawBoard(context, rows, columns, rside, cside) {
 		 		counter = 1;
 		 	}
 		 	else {
-		 		context.fillStyle = "#CC3333";
+		 		context.fillStyle = "#FFFFDA";
 		 		counter = 0;
 		 	}
 		}
 	}
 }
 
-function displayGambit(i, j, context, side) {
-	colorTile(context, i-1, j, "#7FFF00", side);
-	colorTile(context, i, j-1, "#7FFF00", side);
-	colorTile(context, i+1, j, "#7FFF00", side);
-	colorTile(context, i, j+1, "#7FFF00", side);
-	colorTile(context, i-1, j+1, "#FFA500", side);
-	colorTile(context, i-1, j-1, "#FFA500", side);
-	colorTile(context, i+1, j+1, "#FFA500", side);
-	colorTile(context, i+1, j-1, "#FFA500", side);
+function displayGambit(i, j, context, rside, cside, mgb) {
+
+	if (mgb[i-1][j] <= 20 && mgb[i-1][j] >= 0) {
+		colorTile(context, i-1, j, "#7FFF00", rside, cside);
+	}
+	else {
+		colorTile(context, i-1, j, "#FFA500", rside, cside);
+	}
+
+	//colorTile(context, i-1, j, "#7FFF00", side);
+	//colorTile(context, i, j-1, "#7FFF00", side);
+	//colorTile(context, i+1, j, "#7FFF00", side);
+	//colorTile(context, i, j+1, "#7FFF00", side);
+	//colorTile(context, i-1, j+1, "#FFA500", side);
+	//colorTile(context, i-1, j-1, "#FFA500", side);
+	//colorTile(context, i+1, j+1, "#FFA500", side);
+	//colorTile(context, i+1, j-1, "#FFA500", side);
 }
 
 function colorTile(context, row, column, color, rside, cside) {
@@ -213,55 +219,3 @@ function getRandomNumber(min, max) {
 	rand = Math.floor(rand)
 	return rand;
 }
-
-function callGambit(gambit) {
-	switch(gambit) {
-		case 1:
-			return 1;
-		case 2:
-			if (getRandomNumber() >= 0.5) {
-				return 1;
-			}
-			else {
-				return 0;
-			}
-		case 3:
-			if (getRandomNumber() >= 0.7) {
-				return 1;
-			}
-			else {
-				return 0;
-			}
-		case 4:
-			if (getRandomNumber() >= 0.95) {
-				return 1;
-			}
-			else {
-				return 0;
-			}
-	}
-}
-
-// function callGambit() {
-// 	var prob = 0;
-// 	//add probability code
-
-// 	switch () {
-// 		case 1:
-// 		 	break;
-// 		case 2:
-// 		 	break;
-// 		case 3:
-// 		 	break;
-// 		case 4:
-// 		 	break;
-// 		case 5:
-// 		 	break;
-// 		case 6:
-// 		 	break;
-// 		case 7:
-// 		 	break;
-// 		case 8:
-// 		 	break;
-// 	}
-// }
