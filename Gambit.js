@@ -5,14 +5,17 @@
 //At every step show maximum possible score (Will require max_score algorithm)
 //Have option to expose board that shows path with maximum score.
 //note: move tracking is not perfect because the move tracker array does not account for predictive moves being made.
+//color for p2:#6600CC
 
 $(document).ready(function () {
 
 	/*Need to decide color codes for tiles*/
+	var game_interval_id = 0;
 	var FPS = 30;
 	var game_type = 1;
 	var meta_gameboard = [];
 	var move_tracker = [];
+	var opp_move_tracker = [];
 	var win_move_comb = [];
 	var gameboard = document.getElementById("gameboard");
 	gameboard.width = $(window).width() - $("#info").width();
@@ -23,18 +26,19 @@ $(document).ready(function () {
 	var row_limit = 17;
 	var col_limit = 31;
 	var row = 8; //Since counts start from 0, limit(median) - 1 
-	var col = 15;
+	var col = 7;
+	var opp_row = 8; //Since counts start from 0, limit(median) - 1 
+	var opp_col = 22;
 	var gamestarted = false;
 	var score = 0;
+	var opp_score = 0;
 	var fl = 0;
-	var moves = 0;
+	var moves = 100;
+	var opp_moves = 100;
+	var move_flag = true;
 	canvas.font = "italic 100px Helvetica";
-	canvas.fillStyle = "White";
-
-	canvas.fillText("Dare il", col*col_side - 137, row*row_side - 50);	
-	colorTile(canvas, row, col, "#3366CC", row_side, col_side);
-	canvas.fillStyle = "White";
-	canvas.fillText("Gambetto", col*col_side - 207, row*row_side + 150);
+	
+	drawWelcomeScreen();
 
 	$("#playbutton").click(function() {
 		startGame();
@@ -101,6 +105,12 @@ $(document).ready(function () {
     $(document).on('click', '#freeplay', function () {
     	game_type = 1;
     	$("#gmtype").text("Free Play");
+    	$("#score2").css("visibility","hidden");
+    	$("#movesleft2").css("visibility","hidden");
+
+    	$("#score").text("Score: " + score);
+    	$("#movesleft").text("Moves Left: " + moves);
+
     	gamestarted = false;
     	drawWelcomeScreen();
     });
@@ -108,6 +118,14 @@ $(document).ready(function () {
     $(document).on('click', '#playvai', function () {
     	game_type = 2;
     	$("#gmtype").text("VS AI");
+    	$("#score2").css("visibility","visible");
+    	$("#movesleft2").css("visibility","visible");
+
+    	$("#score").text("P1 Score: " + score);
+    	$("#movesleft").text("P1 Moves Left: " + moves);
+    	$("#score2").text("AI Score: " + opp_score);
+    	$("#movesleft2").text("AI Moves Left: " + opp_moves);
+
     	gamestarted = false;
     	drawWelcomeScreen();
     });
@@ -115,6 +133,14 @@ $(document).ready(function () {
     $(document).on('click', '#playvh', function () {
     	game_type = 3;
     	$("#gmtype").text("VS Human");
+    	$("#score2").css("visibility","visible");
+    	$("#movesleft2").css("visibility","visible");
+
+    	$("#score").text("P1 Score: " + score);
+    	$("#movesleft").text("P1 Moves Left: " + moves);
+    	$("#score2").text("P2 Score: " + opp_score);
+    	$("#movesleft2").text("P2 Moves Left: " + opp_moves);
+
     	gamestarted = false;
     	drawWelcomeScreen();
     });
@@ -122,21 +148,24 @@ $(document).ready(function () {
 
 
 	function startGame() {
-		score = 0;
-		moves = 100;
-		row = 8;
-		col = 15;
+		
 		canvas.fillStyle = "#FF0000";
-		gamestarted = true;
-		populateGameBoard();
-		console.log(meta_gameboard);
-		console.log(move_tracker);
-		console.log(max_score());
-		console.log(win_move_comb);
+		clearInterval(game_interval_id);
 
 		switch (game_type) {
 			case 1:
-				setInterval(function() {
+				gamestarted = true;
+				populateGameBoard();
+				console.log(meta_gameboard);
+				console.log(move_tracker);
+				console.log(max_score());
+				console.log(win_move_comb);
+				score = 0;
+				moves = 100;
+				row = 8;
+				col = 15;
+				
+				game_interval_id = setInterval(function() {
 					//gameboard.width = $(window).width() - $("#info").width();
 					//gameboard.height = $(window).height();
 					var col_side = Math.floor(($(window).width() - $("#info").width())/31);
@@ -154,8 +183,24 @@ $(document).ready(function () {
 				}, 1000/FPS);
 				break;
 			case 2:
+				score = 0;
+				opp_score = 0;
+				moves = 100;
+				opp_moves = 100;
+				row = 8;
+				opp_row = 8;
+				col = 7;
+				opp_col = 22;
 				break;
 			case 3:
+				score = 0;
+				opp_score = 0;
+				moves = 100;
+				opp_moves = 100;
+				row = 8;
+				opp_row = 8;
+				col = 7;
+				opp_col = 22;
 				break;
 		}
 	}
@@ -234,8 +279,17 @@ $(document).ready(function () {
 	function draw() {
 		//var side = $(window).width()/30;
 		drawBoard(canvas, row_limit, col_limit, row_side, col_side);
-		colorTile(canvas, row, col, "#3366CC", row_side, col_side);
-		displayGambit(row, col, canvas, row_side, col_side, meta_gameboard);
+
+		if (game_type == 1) {
+			colorTile(canvas, row, col, "#3366CC", row_side, col_side);
+			displayGambit(row, col, canvas, row_side, col_side, meta_gameboard);
+		}
+		else {
+			colorTile(canvas, row, col, "#3366CC", row_side, col_side);
+			displayGambit(row, col, canvas, row_side, col_side, meta_gameboard);
+			colorTile(canvas, opp_row, opp_col, "#6600CC", row_side, col_side);
+			displayGambit(opp_row, opp_col, canvas, row_side, col_side, meta_gameboard);
+		}
 	}
 
 	function drawGO() {
@@ -254,15 +308,31 @@ $(document).ready(function () {
 		canvas.fillRect(0, 0, col_side*31, row_side*17);
 		canvas.fillStyle = "White";
 
-		canvas.fillText("Dare il", col*col_side - 137, row*row_side - 50);	
-		colorTile(canvas, row, col, "#3366CC", row_side, col_side);
+		canvas.fillText("Dare il", 15*col_side - 137, 8*row_side - 50);	
+		colorTile(canvas, 8, 15, "#3366CC", row_side, col_side);
 		canvas.fillStyle = "White";
-		canvas.fillText("Gambetto", col*col_side - 207, row*row_side + 150);
+		canvas.fillText("Gambetto", 15*col_side - 207, 8*row_side + 150);
 	}
 
 	function updateScore() {
-		$("#score").text("Score: " + score);
-		$("#movesleft").text("Moves Left: " + moves);
+		switch (game_type) {
+		case 1:
+			$("#score").text("Score: " + score);
+			$("#movesleft").text("Moves Left: " + moves);
+			break;
+		case 2:
+			$("#score").text("P1 Score: " + score);
+    		$("#movesleft").text("P1 Moves Left: " + moves);
+    		$("#score2").text("AI Score: " + opp_score);
+    		$("#movesleft2").text("AI Moves Left: " + opp_moves);
+			break;
+		case 3:
+			$("#score").text("P1 Score: " + score);
+    		$("#movesleft").text("P1 Moves Left: " + moves);
+    		$("#score2").text("P2 Score: " + opp_score);
+    		$("#movesleft2").text("P2 Moves Left: " + opp_moves);
+			break;
+		}
 	}
 
 
@@ -271,12 +341,21 @@ $(document).ready(function () {
 		for (i = 0; i < row_limit; i++) {
 			meta_gameboard[i] = new Array(31);
 			move_tracker[i] = new Array(31);
+			if (game_type != 0) move_tracker[i] = new Array(31);
 			for (j = 0; j < col_limit; j++) {
 				meta_gameboard[i][j] = getRandomNumber(-100, 100);
 				move_tracker[i][j] = false;
+				if (game_type != 0) move_tracker[i][j] = false;
 			}
 		}
-		move_tracker[row][col] = true;
+		if (game_type == 1) {
+			move_tracker[8][15] = true;
+		}
+		else {
+			move_tracker[8][7] = true;
+			opp_move_tracker[8][22] = true;
+
+		}
 	}
 
 	function record_move() {
@@ -289,6 +368,11 @@ $(document).ready(function () {
 				if (move_tracker[i][j] == true) {
 					colorTile(canvas, i, j, "#3366CC", row_side, col_side);
 				}
+				if (game_type != 1) {
+					if (opp_move_tracker[i][j] == true) {
+						colorTile(canvas, i, j, "#6600CC", row_side, col_side);
+					}
+				}	
 			}
 		}
 	}
