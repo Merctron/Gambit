@@ -10,6 +10,7 @@ $(document).ready(function () {
 
 	/*Need to decide color codes for tiles*/
 	var FPS = 30;
+	var game_type = 1;
 	var meta_gameboard = [];
 	var move_tracker = [];
 	var win_move_comb = [];
@@ -44,21 +45,21 @@ $(document).ready(function () {
 	});
 
 	$("#helpbutton").click(function() {
-		var overlay = "<div class='dialog'>";
+		var overlay = "<div class='dialog' style='overflow-y:scroll;'>";
 
 		overlay += "<br></br>";
-		overlay += "<h1 class='gtitle' style='font-size:50px;'>GAMBIT: HELP</h1>";
+		overlay += "<h1 class='gtitle' style='color: #3366CC;font-size:50px;'>GAMBIT: HELP</h1>";
 		overlay += "<br></br>";
 
-		overlay += "<h2>How To Play</h2>";
-		overlay += "<p style='margin-left:auto; margin-right:auto; width: 40em;'>Free Play: The objective is simple: Maximize your score. Every tile has a negative or";
+		overlay += "<h2 style='color: #3366CC;'>How To Play</h2>";
+		overlay += "<p style='font-size:20px; margin-left:auto; margin-right:auto; width: 40em;'>Free Play: The objective is simple: Maximize your score. Every tile has a negative or";
 		overlay+= "positive score associated with it. Move across the board to score points. At every step you face a gambit Indicated by the colors green (safe),";
 		overlay += "orange (risky), and red (major gambit). Move across the board keeping in mind that spots once traversed cannot be traversed again.</p>";
-		overlay += "<p style='margin-left:auto; margin-right:auto; width: 40em;'>VS AI: Move across the board to score points. At every step you face a gambit.</p>";
-		overlay += "<p style='margin-left:auto; margin-right:auto; width: 40em;'>VS Human: Move across the board to score points. At every step you face a gambit.</p>";
+		overlay += "<p style='font-size:20px; margin-left:auto; margin-right:auto; width: 40em;'>VS AI: Beat an AI in a game that follows the same rules as freeplay except for one excpetion; An increase in your score results in a decrease in your opponent's score and vice versa;</p>";
+		overlay += "<p style='font-size:20px; margin-left:auto; margin-right:auto; width: 40em;'>VS Human: Play a game against a friend. Aforemonetioned rules apply.</p>";
 
-		overlay += "<h2>About</h2>";
-		overlay += "<p style='margin-left:auto; margin-right:auto; width: 40em;'>Concieved and developed by Murtuza Kainan.</p>";
+		overlay += "<h2 style='color: #3366CC;'>About</h2>";
+		overlay += "<p style='font-size:20px; margin-left:auto; margin-right:auto; width: 40em;'>Concieved and developed by Murtuza Kainan. &copy Murtuza Kainan.</p>";
 
 		overlay += "<p><Button id='close-d'>Close";
 		overlay += "</Button></p>";
@@ -71,10 +72,10 @@ $(document).ready(function () {
 	});
 
 	$("#menubutton").click(function() {
-		var overlay = "<div class='dialog'>";
+		var overlay = "<div class='dialog' style='overflow-y:scroll;'>";
 
 		overlay += "<br></br>";
-		overlay += "<h1 class='gtitle' style='font-size:50px;'>GAMBIT: MENU</h1>";
+		overlay += "<h1 class='gtitle' style='color: #3366CC;font-size:50px;'>GAMBIT: MENU</h1>";
 		overlay += "<br></br>";
 
 		overlay += "<p><Button id='freeplay'>Free Play";
@@ -96,12 +97,33 @@ $(document).ready(function () {
 	$(document).on('click', '#close-d', function () {
     	$(".dialog").remove();
     });
+
+    $(document).on('click', '#freeplay', function () {
+    	game_type = 1;
+    	$("#gmtype").text("Free Play");
+    	gamestarted = false;
+    	drawWelcomeScreen();
+    });
+
+    $(document).on('click', '#playvai', function () {
+    	game_type = 2;
+    	$("#gmtype").text("VS AI");
+    	gamestarted = false;
+    	drawWelcomeScreen();
+    });
+
+    $(document).on('click', '#playvh', function () {
+    	game_type = 3;
+    	$("#gmtype").text("VS Human");
+    	gamestarted = false;
+    	drawWelcomeScreen();
+    });
 	
 
 
 	function startGame() {
 		score = 0;
-		moves = 10;
+		moves = 100;
 		row = 8;
 		col = 15;
 		canvas.fillStyle = "#FF0000";
@@ -111,29 +133,31 @@ $(document).ready(function () {
 		console.log(move_tracker);
 		console.log(max_score());
 		console.log(win_move_comb);
-		setInterval(function() {
-			//gameboard.width = $(window).width() - $("#info").width();
-			//gameboard.height = $(window).height();
-			var col_side = Math.floor(($(window).width() - $("#info").width())/31);
-			var row_side = Math.floor($(window).height()/17);
-			if (gamestarted) {
-				update();
 
-  				draw();
-  				display_occupied_spots();
-  				if (moves <= 0) {
-					gamestarted = false;
-					canvas.fillStyle = "black";
-					canvas.fillRect(0, 0, col_side*31, row_side*17);
-					canvas.fillStyle = "White";
+		switch (game_type) {
+			case 1:
+				setInterval(function() {
+					//gameboard.width = $(window).width() - $("#info").width();
+					//gameboard.height = $(window).height();
+					var col_side = Math.floor(($(window).width() - $("#info").width())/31);
+					var row_side = Math.floor($(window).height()/17);
+					if (gamestarted) {
+						update();
 
-					canvas.fillText("Game", 15*col_side - 127, 8*row_side - 50);	
-					colorTile(canvas, 8, 15, "#3366CC", row_side, col_side);
-					canvas.fillStyle = "White";
-					canvas.fillText("Over", 15*col_side - 95, 8*row_side + 150);
-				}
-			}
-		}, 1000/FPS);
+  						draw();
+  						display_occupied_spots();
+  						if (moves <= 0) {
+							gamestarted = false;
+							drawGO();
+						}
+					}
+				}, 1000/FPS);
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+		}
 	}
 
 	
@@ -214,6 +238,28 @@ $(document).ready(function () {
 		displayGambit(row, col, canvas, row_side, col_side, meta_gameboard);
 	}
 
+	function drawGO() {
+		canvas.fillStyle = "black";
+		canvas.fillRect(0, 0, col_side*31, row_side*17);
+		canvas.fillStyle = "White";
+
+		canvas.fillText("Game", 15*col_side - 127, 8*row_side - 50);	
+		colorTile(canvas, 8, 15, "#3366CC", row_side, col_side);
+		canvas.fillStyle = "White";
+		canvas.fillText("Over", 15*col_side - 95, 8*row_side + 150);
+	}
+
+	function drawWelcomeScreen() {
+		canvas.fillStyle = "black";
+		canvas.fillRect(0, 0, col_side*31, row_side*17);
+		canvas.fillStyle = "White";
+
+		canvas.fillText("Dare il", col*col_side - 137, row*row_side - 50);	
+		colorTile(canvas, row, col, "#3366CC", row_side, col_side);
+		canvas.fillStyle = "White";
+		canvas.fillText("Gambetto", col*col_side - 207, row*row_side + 150);
+	}
+
 	function updateScore() {
 		$("#score").text("Score: " + score);
 		$("#movesleft").text("Moves Left: " + moves);
@@ -261,19 +307,19 @@ $(document).ready(function () {
 
 		if (row > 0) {
 			if (!move_tracker[row-1][col])
-				s1 += rec_max_score(moves, row-1, col);
+				s1 += rec_max_score(10, row-1, col);
 		}
 		if (row < 16) {
 			if (!move_tracker[row+1][col])
-				s2 += rec_max_score(moves, row+1, col);
+				s2 += rec_max_score(10, row+1, col);
 		}
 		if (col > 0) {
 			if (!move_tracker[row][col-1])
-				s3 += rec_max_score(moves, row, col-1);
+				s3 += rec_max_score(10, row, col-1);
 		}
 		if (col < 30) {
 			if (!move_tracker[row][col+1])
-				s4 += rec_max_score(moves, row, col+1);
+				s4 += rec_max_score(10, row, col+1);
 		}
 
 
