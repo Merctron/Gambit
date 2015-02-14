@@ -44,14 +44,38 @@ $(document).ready(function () {
 	});
 
 	$("#helpbutton").click(function() {
-		
+		var overlay = "<div class='dialog'>";
+
+		overlay += "<br></br>";
+		overlay += "<h1 class='gtitle' style='font-size:50px;'>GAMBIT: HELP</h1>";
+		overlay += "<br></br>";
+
+		overlay += "<h2>How To Play</h2>";
+		overlay += "<p style='margin-left:auto; margin-right:auto; width: 40em;'>Free Play: The objective is simple: Maximize your score. Every tile has a negative or";
+		overlay+= "positive score associated with it. Move across the board to score points. At every step you face a gambit Indicated by the colors green (safe),";
+		overlay += "orange (risky), and red (major gambit). Move across the board keeping in mind that spots once traversed cannot be traversed again.</p>";
+		overlay += "<p style='margin-left:auto; margin-right:auto; width: 40em;'>VS AI: Move across the board to score points. At every step you face a gambit.</p>";
+		overlay += "<p style='margin-left:auto; margin-right:auto; width: 40em;'>VS Human: Move across the board to score points. At every step you face a gambit.</p>";
+
+		overlay += "<h2>About</h2>";
+		overlay += "<p style='margin-left:auto; margin-right:auto; width: 40em;'>Concieved and developed by Murtuza Kainan.</p>";
+
+		overlay += "<p><Button id='close-d'>Close";
+		overlay += "</Button></p>";
+
+
+        overlay += "</div>"; //close overlay div
+        var $overl = $(overlay);
+        $overl.appendTo("body"); //Appends to body and adds to DOM
+        $(".dialog").fadeIn();
 	});
 
 	$("#menubutton").click(function() {
-		console.log("clicked");
 		var overlay = "<div class='dialog'>";
 
-		overlay += "<div class='dialog-inner'>";
+		overlay += "<br></br>";
+		overlay += "<h1 class='gtitle' style='font-size:50px;'>GAMBIT: MENU</h1>";
+		overlay += "<br></br>";
 
 		overlay += "<p><Button id='freeplay'>Free Play";
 		overlay += "</Button></p>";
@@ -59,14 +83,19 @@ $(document).ready(function () {
 		overlay += "</Button></p>";
 		overlay += "<p><Button id='playvh'>Play VS Human";
 		overlay += "</Button></p>";
+		overlay += "<p><Button id='close-d'>Close";
+		overlay += "</Button></p>";
 
-		overlay += "</div>";
 
         overlay += "</div>"; //close overlay div
         var $overl = $(overlay);
         $overl.appendTo("body"); //Appends to body and adds to DOM
         $(".dialog").fadeIn();
 	});
+
+	$(document).on('click', '#close-d', function () {
+    	$(".dialog").remove();
+    });
 	
 
 
