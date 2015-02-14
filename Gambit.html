@@ -51,6 +51,37 @@
 			color: #3366CC;
 		}
 
+		button:focus {
+			color: white;
+		}
+
+		.dialog {
+			position: fixed;
+            background-color: #282828;
+            color: white;
+            height: auto;
+            width: auto;
+            z-index: 1000;
+            margin-left: auto;
+            margin-right: auto;
+            top: 10%;
+            left: 23%;
+		}
+
+		.dialog-inner {
+            height: 738px;
+            width: 1000px;
+            text-align: center;
+			display: inline;
+        }
+
+        .dialog-center {
+            position: relative;
+            margin-left: auto;
+            margin-right: auto;
+            left: 8%;
+        }
+
 
 	</style>
 
@@ -64,14 +95,16 @@
 			<br></br>
 			<br></br>
 
+			<h2 id="gmtype" class="dp">Free Play</h2>
 			<h2 id="score" class="dp">Score: 0</h2>
 			<h2 id="movesleft" class="dp">Moves Left: 0</h2>
 
 			<br></br>
 
-			<p><button id="playbutton" href="javascript">Play</button></p>
-			<p><button id="expbutton">Expose Board</button></p>
-			<p><button id="helpbutton">Help / About</button></p>
+			<p><button id="menubutton" href="javascript">Menu</button></p>
+			<p><button id="playbutton" href="javascript">Reset Board</button></p>
+			<p><button id="expbutton" href="javascript">Expose Board</button></p>
+			<p><button id="helpbutton" href="javascript">Help / About</button></p>
 
 
 		</div>

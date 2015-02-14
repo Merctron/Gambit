@@ -4,6 +4,7 @@
 //Get off the board with the number of moves remaining and maximum score.
 //At every step show maximum possible score (Will require max_score algorithm)
 //Have option to expose board that shows path with maximum score.
+//note: move tracking is not perfect because the move tracker array does not account for predictive moves being made.
 
 $(document).ready(function () {
 
@@ -45,12 +46,33 @@ $(document).ready(function () {
 	$("#helpbutton").click(function() {
 		
 	});
+
+	$("#menubutton").click(function() {
+		console.log("clicked");
+		var overlay = "<div class='dialog'>";
+
+		overlay += "<div class='dialog-inner'>";
+
+		overlay += "<p><Button id='freeplay'>Free Play";
+		overlay += "</Button></p>";
+		overlay += "<p><Button id='playvai'>Play VS AI";
+		overlay += "</Button></p>";
+		overlay += "<p><Button id='playvh'>Play VS Human";
+		overlay += "</Button></p>";
+
+		overlay += "</div>";
+
+        overlay += "</div>"; //close overlay div
+        var $overl = $(overlay);
+        $overl.appendTo("body"); //Appends to body and adds to DOM
+        $(".dialog").fadeIn();
+	});
 	
 
 
 	function startGame() {
 		score = 0;
-		moves = 5;
+		moves = 10;
 		row = 8;
 		col = 15;
 		canvas.fillStyle = "#FF0000";
@@ -226,21 +248,29 @@ $(document).ready(function () {
 		}
 
 
-		if (s1 >= s2 && s1 >= s3 && s1 >= s4 && !move_tracker[row-1][col]) {
-			win_move_comb.push("UP");
-			return s1 + score;
+		if (row > 0) {
+			if (s1 >= s2 && s1 >= s3 && s1 >= s4 && !move_tracker[row-1][col]) {
+				win_move_comb.push("UP");
+				return s1 + score;
+			}
 		}
-		else if (s2 >= s1 && s2 >= s3 && s2 >= s4 && !move_tracker[row+1][col]) {
-			win_move_comb.push("DOWN");
-			return s2 + score;
+		if (row < 16) { 
+			if (s2 >= s1 && s2 >= s3 && s2 >= s4 && !move_tracker[row+1][col]) {
+				win_move_comb.push("DOWN");
+				return s2 + score;
+			}
 		}
-		else if (s3 >= s1 && s3 >= s2 && s3 >= s4 && !move_tracker[row][col-1]) {
-			win_move_comb.push("LEFT");
-			return s3 + score;
+		if (col > 0) {
+			if (s3 >= s1 && s3 >= s2 && s3 >= s4 && !move_tracker[row][col-1]) {
+				win_move_comb.push("LEFT");
+				return s3 + score;
+			}
 		}
-		else if (s4 >= s1 && s4 >= s2 && s4 >= s3 && !move_tracker[row][col+1]) {
-			win_move_comb.push("RIGHT");
-			return s4 + score;
+		if (col < 30) {
+			if (s4 >= s1 && s4 >= s2 && s4 >= s3 && !move_tracker[row][col+1]) {
+				win_move_comb.push("RIGHT");
+				return s4 + score;
+			}
 		}
 
 		return 0;
@@ -277,18 +307,25 @@ $(document).ready(function () {
 					s4 += rec_max_score(mv - 1, r, c+1) + meta_gameboard[r][c];
 			}
 
-
-			if (s1 >= s2 && s1 >= s3 && s1 >= s4 && !move_tracker[row-1][col]) {
-				return s1;
+			if (r >= 0) {
+				if (s1 >= s2 && s1 >= s3 && s1 >= s4 && !move_tracker[r][c]) {
+					return s1;
+				}
 			}
-			else if (s2 >= s1 && s2 >= s3 && s2 >= s4 && !move_tracker[row+1][col]) {
-				return s2;
+			if (r <= 16) {
+				if (s2 >= s1 && s2 >= s3 && s2 >= s4 && !move_tracker[r][c]) {
+					return s2;
+				}
 			}
-			else if (s3 >= s1 && s3 >= s2 && s3 >= s4 && !move_tracker[row][col-1]) {
-				return s3;
+			if (c >= 0) {
+				if (s3 >= s1 && s3 >= s2 && s3 >= s4 && !move_tracker[r][c]) {
+					return s3;
+				}
 			}
-			else if (s4 >= s1 && s4 >= s2 && s4 >= s3 && !move_tracker[row][col+1]) {
-				return s4;
+			if (c <= 30) {
+				if (s4 >= s1 && s4 >= s2 && s4 >= s3 && !move_tracker[r][c]) {
+					return s4;
+				}
 			}
 
 			return 0;
