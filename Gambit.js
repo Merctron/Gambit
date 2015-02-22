@@ -16,6 +16,7 @@ $(document).ready(function () {
 	var meta_gameboard = [];
 	var move_tracker = [];
 	var opp_move_tracker = [];
+	var master_move_tracker = [];
 	var win_move_comb = [];
 	var gameboard = document.getElementById("gameboard");
 	gameboard.width = $(window).width() - $("#info").width();
@@ -36,6 +37,7 @@ $(document).ready(function () {
 	var moves = 100;
 	var opp_moves = 100;
 	var move_flag = true;
+	var player_moving = 0;
 	canvas.font = "italic 100px Helvetica";
 	
 	drawWelcomeScreen();
@@ -59,7 +61,7 @@ $(document).ready(function () {
 		overlay += "<p style='font-size:20px; margin-left:auto; margin-right:auto; width: 40em;'>Free Play: The objective is simple: Maximize your score. Every tile has a negative or";
 		overlay+= "positive score associated with it. Move across the board to score points. At every step you face a gambit Indicated by the colors green (safe),";
 		overlay += "orange (risky), and red (major gambit). Move across the board keeping in mind that spots once traversed cannot be traversed again.</p>";
-		overlay += "<p style='font-size:20px; margin-left:auto; margin-right:auto; width: 40em;'>VS AI: Beat an AI in a game that follows the same rules as freeplay except for one excpetion; An increase in your score results in a decrease in your opponent's score and vice versa;</p>";
+		overlay += "<p style='font-size:20px; margin-left:auto; margin-right:auto; width: 40em;'>VS AI: Beat an AI in a game that follows the same rules as freeplay with a few excpetions; An increase in your score results in a decrease in your opponent's score and vice versa; A destination square is appointed to each player that must be reached by the last move. The player with the highest score at the destination wins; You can be cut off from your destination or from making moves by your opponent.</p>";
 		overlay += "<p style='font-size:20px; margin-left:auto; margin-right:auto; width: 40em;'>VS Human: Play a game against a friend. Aforemonetioned rules apply.</p>";
 
 		overlay += "<h2 style='color: #3366CC;'>About</h2>";
@@ -104,6 +106,8 @@ $(document).ready(function () {
 
     $(document).on('click', '#freeplay', function () {
     	game_type = 1;
+    	score = 0;
+		moves = 100;
     	$("#gmtype").text("Free Play");
     	$("#score2").css("visibility","hidden");
     	$("#movesleft2").css("visibility","hidden");
@@ -117,6 +121,8 @@ $(document).ready(function () {
 
     $(document).on('click', '#playvai', function () {
     	game_type = 2;
+    	score = 0;
+		moves = 100;
     	$("#gmtype").text("VS AI");
     	$("#score2").css("visibility","visible");
     	$("#movesleft2").css("visibility","visible");
@@ -132,6 +138,8 @@ $(document).ready(function () {
 
     $(document).on('click', '#playvh', function () {
     	game_type = 3;
+    	score = 0;
+		moves = 100;
     	$("#gmtype").text("VS Human");
     	$("#score2").css("visibility","visible");
     	$("#movesleft2").css("visibility","visible");
@@ -193,6 +201,12 @@ $(document).ready(function () {
 				opp_col = 22;
 				break;
 			case 3:
+				gamestarted = true;
+				populateGameBoard();
+				console.log(meta_gameboard);
+				console.log(move_tracker);
+				console.log(max_score());
+				console.log(win_move_comb);
 				score = 0;
 				opp_score = 0;
 				moves = 100;
@@ -201,6 +215,25 @@ $(document).ready(function () {
 				opp_row = 8;
 				col = 7;
 				opp_col = 22;
+				player_moving = 1;
+
+				game_interval_id = setInterval(function() {
+					//gameboard.width = $(window).width() - $("#info").width();
+					//gameboard.height = $(window).height();
+					var col_side = Math.floor(($(window).width() - $("#info").width())/31);
+					var row_side = Math.floor($(window).height()/17);
+					if (gamestarted) {
+						update();
+
+  						draw();
+  						display_occupied_spots();
+  						if (moves <= 0) {
+							gamestarted = false;
+							drawGO();
+						}
+					}
+				}, 1000/FPS);
+
 				break;
 		}
 	}
@@ -217,39 +250,148 @@ $(document).ready(function () {
 		if (gamestarted) {
 			switch (parseInt(key.which,10)) {
 			case 37: //left
-				if (col > 0) {
-					if (!move_tracker[row][col-1]) {
-						score += meta_gameboard[row][--col];
-						record_move();
-						moves--;
-					}
+				switch (game_type) {
+					case 1:
+						if (col > 0) {
+							if (!master_move_tracker[row][col-1]) {
+								score += meta_gameboard[row][--col];
+								record_move();
+								moves--;
+							}
+						}
+						break;
+					case 2:
+						break;
+					case 3:
+						if (player_moving == 1) {
+							if (col > 0) {
+								if (!master_move_tracker[row][col-1]) {
+									score += meta_gameboard[row][--col];
+									record_move();
+									moves--;
+								}
+							}
+						}
+						else {
+							if (opp_col > 0) {
+								if (!master_move_tracker[opp_row][opp_col-1]) {
+									opp_score += meta_gameboard[opp_row][--opp_col];
+									record_move();
+									opp_moves--;
+								}
+							}
+						}
+						changePlayer();
+						break;
 				}
+				
 				break;
 			case 38: //up
-				if (row > 0) {
-					if (!move_tracker[row-1][col]) {
-						score += meta_gameboard[--row][col];
-						record_move();
-						moves--;
-					}
+				switch (game_type) {
+					case 1:
+						if (row > 0) {
+							if (!master_move_tracker[row-1][col]) {
+								score += meta_gameboard[--row][col];
+								record_move();
+								moves--;
+							}
+						}
+						break;
+					case 2:
+						break;
+					case 3:
+						if (player_moving == 1) {
+							if (row > 0) {
+								if (!master_move_tracker[row-1][col]) {
+									score += meta_gameboard[--row][col];
+									record_move();
+									moves--;
+								}
+							}
+						}
+						else {
+							if (opp_row > 0) {
+								if (!master_move_tracker[opp_row-1][opp_col]) {
+									opp_score += meta_gameboard[--opp_row][opp_col];
+									record_move();
+									opp_moves--;
+								}
+							}
+						}
+						changePlayer();
+						break;
 				}
 				break;
 			case 39: //right
-				if (col < col_limit - 1) {
-					if (!move_tracker[row][col+1]) {
-						score += meta_gameboard[row][++col];
-						record_move();
-						moves--;
-					}
+				switch (game_type) {
+					case 1:
+						if (col < col_limit - 1) {
+							if (!master_move_tracker[row][col+1]) {
+								score += meta_gameboard[row][++col];
+								record_move();
+								moves--;
+							}
+						}
+						break;
+					case 2:
+						break;
+					case 3:
+						if (player_moving == 1) {
+							if (col < col_limit - 1) {
+								if (!master_move_tracker[row][col+1]) {
+									score += meta_gameboard[row][++col];
+									record_move();
+									moves--;
+								}
+							}
+						}
+						else {
+							if (opp_col < col_limit - 1) {
+								if (!master_move_tracker[opp_row][opp_col+1]) {
+									opp_score += meta_gameboard[opp_row][++opp_col];
+									record_move();
+									opp_moves--;
+								}
+							}
+						}
+						changePlayer();
+						break;
 				}
 				break;
 			case 40: //down
-				if (row < row_limit- 1) {
-					if (!move_tracker[row+1][col]) {
-						score += meta_gameboard[++row][col];
-						record_move();
-						moves--;
-					}
+				switch (game_type) {
+					case 1:
+						if (row < row_limit- 1) {
+							if (!master_move_tracker[row+1][col]) {
+								score += meta_gameboard[++row][col];
+								record_move();
+								moves--;
+							}
+						}
+						break;
+					case 2:
+						break;
+					case 3:
+						if (player_moving == 1) {
+							if (row < row_limit - 1) {
+								if (!master_move_tracker[row+1][col]) {
+									score += meta_gameboard[++row][col];
+									record_move();
+									moves--;
+								}
+							}
+						}
+						else {
+							if (opp_row < row_limit - 1) {
+								if (!master_move_tracker[opp_row+1][opp_col]) {
+									opp_score += meta_gameboard[++opp_row][opp_col];
+									record_move();
+									opp_moves--;
+								}
+							}
+						}
+						changePlayer();
+						break;
 				}
 				break;
 			}
@@ -341,25 +483,39 @@ $(document).ready(function () {
 		for (i = 0; i < row_limit; i++) {
 			meta_gameboard[i] = new Array(31);
 			move_tracker[i] = new Array(31);
-			if (game_type != 0) move_tracker[i] = new Array(31);
+			master_move_tracker[i] = new Array(31);
+			if (game_type != 1) opp_move_tracker[i] = new Array(31);
 			for (j = 0; j < col_limit; j++) {
 				meta_gameboard[i][j] = getRandomNumber(-100, 100);
 				move_tracker[i][j] = false;
-				if (game_type != 0) move_tracker[i][j] = false;
+				master_move_tracker[i][j] = false;
+				if (game_type != 1) opp_move_tracker[i][j] = false;
 			}
 		}
 		if (game_type == 1) {
 			move_tracker[8][15] = true;
+			master_move_tracker[8][15] = true;
 		}
 		else {
 			move_tracker[8][7] = true;
 			opp_move_tracker[8][22] = true;
+			master_move_tracker[8][7] = true;
+			master_move_tracker[8][22] = true;
 
 		}
 	}
 
 	function record_move() {
-		move_tracker[row][col] = true;
+		if (game_type == 1) {
+			move_tracker[row][col] = true;
+			master_move_tracker[row][col] = true;
+		}
+		else {
+			move_tracker[row][col] = true;
+			opp_move_tracker[opp_row][opp_col] = true;
+			master_move_tracker[row][col] = true;
+			master_move_tracker[opp_row][opp_col] = true;
+		}
 	}
 
 	function display_occupied_spots() {
@@ -490,6 +646,19 @@ $(document).ready(function () {
 			return 0;
 		}
 
+	}
+
+	function makeMove() {
+
+	}
+
+	function changePlayer() {
+		if (player_moving == 1) {
+			player_moving = 2;
+		}
+		else {
+			player_moving = 1;
+		}
 	}
 
 });
